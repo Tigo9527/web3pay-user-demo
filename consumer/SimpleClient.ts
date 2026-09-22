@@ -1,9 +1,8 @@
-import {fetchJson} from "ethers/lib/utils";
-import {ConnectionInfo} from "@ethersproject/web/src.ts/index";
-import {ethers} from "ethers";
 import {accountInfo, balanceOf, buildApiKey, ethersSign, keypress} from "../lib/lib";
+import {HttpClient} from "typed-rest-client/HttpClient";
 
 require('dotenv').config()
+const client = new HttpClient("SimpleClient");
 
 async function buildSignature(privateKey: string, app: string) {
 	const seed = `${app}_${Date.now()}`
@@ -22,7 +21,7 @@ async function main() {
 	}
 
 	const {seed, signature} = await buildSignature(privateKey!, app!);
-	const rpcInfo: ConnectionInfo = {
+	const rpcInfo = {
 		url: `http://localhost:${port}`,
 		headers: {
 			"Customer-Key": await buildApiKey(seed, privateKey!),
@@ -32,9 +31,11 @@ async function main() {
 	await request(rpcInfo, '/a-valuable-resource')
 	console.log(`api key length `, rpcInfo.headers!['Customer-Key'].toString().length)
 }
-async function request(rpcInfo: ConnectionInfo, path = '/') {
+async function request(rpcInfo: { url: string; headers?: Record<string, string> }, path = '/') {
 	rpcInfo = {...rpcInfo, url: rpcInfo.url + path}
-	const result = await fetchJson(rpcInfo)
+	const result = await client.get(rpcInfo.url, rpcInfo.headers)
+		.then(res => res.readBody())
+		.then(JSON.parse)
 	console.log(`result of [${rpcInfo.url}] is `, result)
 }
 

@@ -1,7 +1,6 @@
 import * as http from "http";
-import {IncomingMessage, RequestListener, ServerResponse} from "http";
-import {accountInfo, buildApiKey, ethersSign} from "../lib/lib";
-import {fetchJson} from "ethers/lib/utils";
+import {IncomingMessage} from "http";
+import {accountInfo, buildApiKey} from "../lib/lib";
 import {HttpClient} from "typed-rest-client/HttpClient"
 
 require('dotenv').config()
