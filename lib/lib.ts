@@ -1,5 +1,4 @@
 import {ethers} from "ethers";
-import {base64, formatEther} from "ethers/lib/utils";
 
 const abi = [
 	"function balanceOf(address account) view returns (uint)",
@@ -8,7 +7,7 @@ const abi = [
 
 export async function balanceOf(app: string, account: string, rpcEndpoint: string) {
 	const contract = new ethers.Contract(app, abi, ethers.getDefaultProvider(rpcEndpoint))
-	const balance = await contract.balanceOf(account).then(formatEther)
+	const balance = await contract.balanceOf(account).then(ethers.formatEther)
 	const name = await contract.name()
 	console.log(`balance of ${account} , contract ${app} [${name}] , `, balance)
 	return balance
@@ -17,7 +16,7 @@ export async function buildApiKey(msg:string, pk:string) {
 	const sig = await ethersSign(msg, pk);
 	const str = JSON.stringify({msg, sig});
 	console.log(`raw json key length `, str.length)
-	return base64.encode(Buffer.from(str))
+	return ethers.encodeBase64(Buffer.from(str))
 }
 export async function ethersSign(msg: string, pk:string) {
 	const wallet = new ethers.Wallet(pk)
@@ -36,7 +35,7 @@ export async function accountInfo(pk:string, rpcEndpoint: string) {
 
 	const wallet = new ethers.Wallet(pk, provider)
 	console.log(`account ${wallet.address}`)
-	const ether = await wallet.getBalance().then(formatEther)
+	const ether = await provider.getBalance(wallet.address).then(ethers.formatEther)
 	console.log(`balance ${ether}`)
 	return wallet;
 }
